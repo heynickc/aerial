@@ -25,10 +25,10 @@ $("document").ready(function() {
 	var metro06 = new L.TileLayer(metro06URL, {maxZoom: 19, attribution: mapboxAttrib, scheme: 'tms', opacity: 1});
 	// 2008 aerial photo tiles
 	var metro08URL = 'http://gis.wicomicocounty.org/metro2008/{z}/{x}/{y}.png';
-	var metro08 = new L.TileLayer(metro08URL, {maxZoom: 19, attribution: mapboxAttrib, scheme: 'tms', opacity: 1});
+	var metro08 = new L.TileLayer(metro08URL, {maxZoom: 19, attribution: mapboxAttrib, scheme: 'tms', opacity: 0});
 	// 2010 aerial photo tiles
 	var metro10URL = 'http://gis.wicomicocounty.org/metro2010/{z}/{x}/{y}.png';
-	var metro10 = new L.TileLayer(metro10URL, {maxZoom: 19, attribution: mapboxAttrib, scheme: 'tms', opacity: 1});
+	var metro10 = new L.TileLayer(metro10URL, {maxZoom: 19, attribution: mapboxAttrib, scheme: 'tms', opacity: 0});
 
 	// CartoDB building footprint tiles
 	var	bldgTileURL = 'http://nickchamberlain.cartodb.com/tiles/buildings/{z}/{x}/{y}.png';
@@ -45,24 +45,23 @@ $("document").ready(function() {
 	var	salisbury = new L.LatLng(38.3660, -75.6035);
 	var map = new L.Map('map', {
 			center: salisbury,
-			layers: [mapboxSt]
+			layers: [metro06, metro08, metro10]
 		});
-	var baseMaps = {
-		"Cloudmade Tiles": cloudmade,
-		"Mapbox Light": mapbox,
-		"Mapbox Streets": mapboxSt,
-		"2006 Aerials": metro06,
-		"2008 Aerials": metro08,
-		"2010 Aerials": metro10
-	}
-	var overlayMaps = {
-		"Buildings": bldgTiles,
-		"City Quadrants": quadTiles,
-		"Buffer": overlayGroup
-	}
+	// var baseMaps = {
+	// 	"Mapbox Streets": mapboxSt,
+	// 	"2006 Aerials": metro06,
+	// 	"2008 Aerials": metro08,
+	// 	"2010 Aerials": metro10
+	// }
+	// var overlayMaps = {
+	// 	"Buildings": bldgTiles,
+	// 	"City Quadrants": quadTiles,
+	// 	"Buffer": overlayGroup
+	//}
+
 	// Add layer picker
-	var layersControl = new L.Control.Layers(baseMaps, overlayMaps, {collapsed: true});
-	map.addControl(layersControl);
+	// var layersControl = new L.Control.Layers(baseMaps);
+	// map.addControl(layersControl);
 
 	// Refresh map
 	function refreshMap () {
@@ -72,6 +71,24 @@ $("document").ready(function() {
 	}//resets map zoom and center, clears all markers
 	refreshMap();
 
+$(function() {
+		$("#slider").slider({
+		min: 0, 
+		max: 100, 
+		value: 50,
+		slide: function( event, ui ) {
+				$( "#buffAmt" ).val(ui.value);
+				metro06.setOpacity(ui.value / 100)
+				map.addLayer(metro06)
+			},
+
+		});
+		$( "#buffAmt" ).val($( "#slider" ).slider( "value" ));
+});
+
+
+
+//Geocoder
 $("form").submit(function(event) {
 	event.preventDefault();
 	if ($("#street").val() != "") {
@@ -89,29 +106,10 @@ $("form").submit(function(event) {
 				var locMarker = new L.Marker(loc, {draggable: true});
 					markerGroup.addLayer(locMarker);
 					map.addLayer(markerGroup);
-					map.setView(loc,16);
-				var rad = 350;
-					drawCircle(loc);
-					getHydrantGeoJSON(loc);
-				// listeners for .distance range input and dragging the marker
-				locMarker.on('drag', function(e) {
-					mrkLatLng = locMarker.getLatLng();
-					loc = new L.LatLng(mrkLatLng.lat, mrkLatLng.lng);
-					overlayGroup.clearLayers();
-					drawCircle(loc);
-					var rad = $(".distance").val();
-					getHydrantGeoJSON(loc,rad);
-				});
-				$("#slider").bind("slide", function() {
-					overlayGroup.clearLayers();
-					drawCircle(loc);
-				});
-				$("#slider").bind("slidestop", function() {
-					var rad = $("#slider").slider("value");
-					overlayGroup.clearLayers();
-					getHydrantGeoJSON(loc,rad);
-					drawCircle(loc);
-				});
+					map.setView(loc,16);;
+				// listeners for .distance range input and dragging the marker 
+
+				//REMOVED FOR THIS PROJECT
 
 			} else {
 				refreshMap();
@@ -123,6 +121,7 @@ $("form").submit(function(event) {
 	};//if something is in #street field, do geocoding else reset the map
 });//geocode address on submit
 
+//Building layer from CartoDB
 function getBldgJSON() {
 	map.on('click', onMapClick);
 	function onMapClick(e) {
@@ -154,6 +153,7 @@ function getBldgJSON() {
 }
 getBldgJSON();
 
+//Buffer circle drawer
 function drawCircle(loc) {
 	//var rad = $(".distance").val()
 	var rad = $("#slider").slider("value");
@@ -166,16 +166,6 @@ function drawCircle(loc) {
 	overlayGroup.addLayer(buff);
 	map.addLayer(overlayGroup);
 }
-
-function getHydrantsCartoDB(loc,rad) {
-	var cartodbHyd = new L.CartoDBLayer({
-		map_canvas: 'map',
-		map: map,
-		user_name: 'nickchamberlain',
-		table_name: 'hydrants',
-		query: 'SELECT * FROM hydrants WHERE ST_Contains(ST_Buffer(ST_Transform(ST_SetSRID(ST_Point(' + loc.lng + ',' + loc.lat + '),4326),26985),' + rad + '),ST_Transform(ST_SetSRID(hydrants.the_geom,4326),26985))'
-	});
-}//saved, but not used because JSON was easier to clear the layer out on .distance change
 
 function getHydrantGeoJSON(loc) {
 	//var hydLayer = new L.GeoJSON();
@@ -201,17 +191,5 @@ function getHydrantGeoJSON(loc) {
 		});
 	overlayGroup.addLayer(hydLayer);
 }
-
-$(function() {
-		$("#slider").slider({
-		min: 0, 
-		max: 2000, 
-		value: 500,
-		slide: function( event, ui ) {
-				$( "#buffAmt" ).val(ui.value + " meters");
-			}
-		});
-		$( "#buffAmt" ).val($( "#slider" ).slider( "value" ) + " meters");
-});
 
 });
