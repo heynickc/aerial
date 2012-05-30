@@ -22,13 +22,13 @@ $("document").ready(function() {
 
 	// 2006 aerial photo tiles
 	var metro06URL = 'http://gis.wicomicocounty.org/metro2006/{z}/{x}/{y}.png';
-	var metro06 = new L.TileLayer(metro06URL, {maxZoom: 19, attribution: mapboxAttrib, scheme: 'tms', opacity: 1});
+	var metro06 = new L.TileLayer(metro06URL, {maxZoom: 19, attribution: mapboxAttrib, scheme: 'tms', opacity: .5});
 	// 2008 aerial photo tiles
 	var metro08URL = 'http://gis.wicomicocounty.org/metro2008/{z}/{x}/{y}.png';
-	var metro08 = new L.TileLayer(metro08URL, {maxZoom: 19, attribution: mapboxAttrib, scheme: 'tms', opacity: 0});
+	var metro08 = new L.TileLayer(metro08URL, {maxZoom: 19, attribution: mapboxAttrib, scheme: 'tms', opacity: .5});
 	// 2010 aerial photo tiles
 	var metro10URL = 'http://gis.wicomicocounty.org/metro2010/{z}/{x}/{y}.png';
-	var metro10 = new L.TileLayer(metro10URL, {maxZoom: 19, attribution: mapboxAttrib, scheme: 'tms', opacity: 0});
+	var metro10 = new L.TileLayer(metro10URL, {maxZoom: 19, attribution: mapboxAttrib, scheme: 'tms'});
 
 	// CartoDB building footprint tiles
 	var	bldgTileURL = 'http://nickchamberlain.cartodb.com/tiles/buildings/{z}/{x}/{y}.png';
@@ -39,32 +39,36 @@ $("document").ready(function() {
 
 	// Marker/Overlay tile groups used later
 	var markerGroup = new L.LayerGroup();
-	var overlayGroup = new L.LayerGroup();
+	var aerialGroup = new L.LayerGroup();
 
 	// Create map
 	var	salisbury = new L.LatLng(38.3660, -75.6035);
-	var map = new L.Map('map')
-
+	var map = new L.Map('map');
+	aerialGroup.addLayer(metro06);
+	map.addLayer(aerialGroup);
+	map.setView(salisbury, 14);
+	
 	// Refresh map
 	function refreshMap () {
-		map.setView(salisbury, 13)
+		map.setView(salisbury, 14)
 		markerGroup.clearLayers();
 	}//resets map zoom and center, clears all markers
 	refreshMap();
 
-$(function() {
-		$("#slider").slider({
+	$("#slider").slider({
 		min: 0, 
-		max: 100, 
-		value: 50,
+		max: 10, 
+		// value: 50,
 		slide: function( event, ui ) {
 				$( "#buffAmt" ).val(ui.value);
-				metro06.setOpacity(ui.value / 100)
-			},
-
+				metro06.setOpacity(ui.value / 10);
+				// metro08.setOpacity((10 - ui.value) / 10);
+				console.log(metro06.options.opacity, metro08.options.opacity);
+				aerialGroup.addLayer(metro06);
+				map.addLayer(aerialGroup);
+			}
 		});
 		$( "#buffAmt" ).val($( "#slider" ).slider( "value" ));
-});
 
 //Geocoder
 $("form").submit(function(event) {
@@ -72,7 +76,6 @@ $("form").submit(function(event) {
 	if ($("#street").val() != "") {
 		//refreshMap();
 		markerGroup.clearLayers();
-		overlayGroup.clearLayers();
 		var street = $("#street").val();
 		var zip = $("#zip").val();
 		var geocode_url = 'http://mdimap.towson.edu/ArcGIS/rest/services/GeocodeServices/MD.State.MDStatewideLocator_LatLong/GeocodeServer/findAddressCandidates?Street=' + street + '&Zone=' + zip + '&outFields=&f=json&callback=?';
