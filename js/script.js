@@ -43,31 +43,12 @@ $("document").ready(function() {
 
 	// Create map
 	var	salisbury = new L.LatLng(38.3660, -75.6035);
-	var map = new L.Map('map', {
-			center: salisbury,
-			layers: [metro06, metro08, metro10]
-		});
-	// var baseMaps = {
-	// 	"Mapbox Streets": mapboxSt,
-	// 	"2006 Aerials": metro06,
-	// 	"2008 Aerials": metro08,
-	// 	"2010 Aerials": metro10
-	// }
-	// var overlayMaps = {
-	// 	"Buildings": bldgTiles,
-	// 	"City Quadrants": quadTiles,
-	// 	"Buffer": overlayGroup
-	//}
-
-	// Add layer picker
-	// var layersControl = new L.Control.Layers(baseMaps);
-	// map.addControl(layersControl);
+	var map = new L.Map('map')
 
 	// Refresh map
 	function refreshMap () {
 		map.setView(salisbury, 13)
 		markerGroup.clearLayers();
-		overlayGroup.clearLayers();
 	}//resets map zoom and center, clears all markers
 	refreshMap();
 
@@ -79,14 +60,11 @@ $(function() {
 		slide: function( event, ui ) {
 				$( "#buffAmt" ).val(ui.value);
 				metro06.setOpacity(ui.value / 100)
-				map.addLayer(metro06)
 			},
 
 		});
 		$( "#buffAmt" ).val($( "#slider" ).slider( "value" ));
 });
-
-
 
 //Geocoder
 $("form").submit(function(event) {
@@ -120,76 +98,5 @@ $("form").submit(function(event) {
 		refreshMap();
 	};//if something is in #street field, do geocoding else reset the map
 });//geocode address on submit
-
-//Building layer from CartoDB
-function getBldgJSON() {
-	map.on('click', onMapClick);
-	function onMapClick(e) {
-		var latlngStr = 'ST_Point(' + e.latlng.lng + ',' + e.latlng.lat + ')';
-		var bldgQryURL = 'http://nickchamberlain.cartodb.com/api/v1/sql/?q=SELECT bldg_type FROM buildings WHERE ST_Contains(buildings.the_geom,ST_SetSRID(' + latlngStr + ',4326))&format=json&callback=?';
-		$.getJSON(bldgQryURL, function(data) {
-			var items = [];
-			if ($.type(data.rows[0]) !== "undefined") {
-				//console.log(data.rows[0]);
-				$.each(data.rows[0], function(key, val) {
-						items.push('<li id="' + key + '"><strong>' + key + '</strong>: ' + val + '</li>');
-				});
-				var popupHTML = $('<ul/>', {
-					'id': 'my-new-list',
-					html: items.join('')
-				})//.appendTo(popupHTML);
-				//console.log(popupHTML)
-				//console.log(e.latlng);
-				$.each(popupHTML, function(index) {
-					console.log(popupHTML.text());
-				});
-				var popup = new L.Popup();
-					popup.setLatLng(e.latlng);
-					popup.setContent(popupHTML.html());
-				map.openPopup(popup);
-			};//if the user clicks a feature make the popup
-		});//populates popup with cartodb JSON
-	};
-}
-getBldgJSON();
-
-//Buffer circle drawer
-function drawCircle(loc) {
-	//var rad = $(".distance").val()
-	var rad = $("#slider").slider("value");
-	var circleOptions = {
-		color: '#509123',
-		fillColor: '#c3eaa7',
-		fillOpacity: 0.25
-	};
-	var buff = new L.Circle(loc, rad, circleOptions);
-	overlayGroup.addLayer(buff);
-	map.addLayer(overlayGroup);
-}
-
-function getHydrantGeoJSON(loc) {
-	//var hydLayer = new L.GeoJSON();
-	//var rad = $(".distance").val();
-	var rad = $("#slider").slider("value");
-	var hydLayer = new L.GeoJSON(null, {
-		    pointToLayer: function (latlng){
-		        return new L.CircleMarker(latlng, {
-		            radius: 3,
-		            fillColor: "#cd2105",
-		            color: "#000",
-		            weight: 1,
-		            opacity: 1,
-		            fillOpacity: 0.75
-		        });
-		    }
-		});
-	$.getJSON('http://nickchamberlain.cartodb.com/api/v1/sql/?q=SELECT * FROM hydrants WHERE ST_Contains(ST_Buffer(ST_Transform(ST_SetSRID(ST_Point(' + loc.lng + ',' + loc.lat + '),4326),26985),' + rad + '),ST_Transform(ST_SetSRID(hydrants.the_geom,4326),26985))&format=geojson&callback=?',
-		function(geojson) {
-			$.each(geojson.features, function(i, feature) {
-			hydLayer.addGeoJSON(feature);
-			})
-		});
-	overlayGroup.addLayer(hydLayer);
-}
 
 });
