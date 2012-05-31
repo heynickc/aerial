@@ -22,7 +22,7 @@ $("document").ready(function() {
 
 	// 2006 aerial photo tiles
 	var metro06URL = 'http://gis.wicomicocounty.org/metro2006/{z}/{x}/{y}.png';
-	var metro06 = new L.TileLayer(metro06URL, {maxZoom: 19, attribution: mapboxAttrib, scheme: 'tms', opacity: .5});
+	var metro06 = new L.TileLayer(metro06URL, {maxZoom: 19, scheme: 'tms', opacity: .5});
 	// 2008 aerial photo tiles
 	var metro08URL = 'http://gis.wicomicocounty.org/metro2008/{z}/{x}/{y}.png';
 	var metro08 = new L.TileLayer(metro08URL, {maxZoom: 19, attribution: mapboxAttrib, scheme: 'tms', opacity: .5});
@@ -50,7 +50,7 @@ $("document").ready(function() {
 	
 	// Refresh map
 	function refreshMap () {
-		map.setView(salisbury, 14)
+		map.setView(salisbury, 13)
 		markerGroup.clearLayers();
 	}//resets map zoom and center, clears all markers
 	refreshMap();
