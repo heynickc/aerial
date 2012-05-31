@@ -59,6 +59,9 @@ $("document").ready(function() {
 		min: 0, 
 		max: 10, 
 		// value: 50,
+		start: function( event, ui) {
+			// aerialGroup.clearLayers();
+		},
 		slide: function( event, ui ) {
 				$( "#buffAmt" ).val(ui.value);
 				metro06.setOpacity(ui.value / 10);
