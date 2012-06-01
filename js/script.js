@@ -44,8 +44,10 @@ $("document").ready(function() {
 	// Create map
 	var	salisbury = new L.LatLng(38.3660, -75.6035);
 	var map = new L.Map('map');
+	map.addLayer(mapboxSt);
 	aerialGroup.addLayer(metro06);
 	map.addLayer(aerialGroup);
+
 	map.setView(salisbury, 14);
 	
 	// Refresh map
@@ -57,18 +59,18 @@ $("document").ready(function() {
 
 	$("#slider").slider({
 		min: 0, 
-		max: 10, 
+		max: 100, 
 		// value: 50,
 		start: function( event, ui) {
 			// aerialGroup.clearLayers();
 		},
 		slide: function( event, ui ) {
 				$( "#buffAmt" ).val(ui.value);
-				metro06.setOpacity(ui.value / 10);
+				metro06.setOpacity(ui.value / 100);
 				// metro08.setOpacity((10 - ui.value) / 10);
 				console.log(metro06.options.opacity, metro08.options.opacity);
-				aerialGroup.addLayer(metro06);
-				map.addLayer(aerialGroup);
+				// aerialGroup.addLayer(metro06);
+				// map.addLayer(aerialGroup);
 			}
 		});
 		$( "#buffAmt" ).val($( "#slider" ).slider( "value" ));
