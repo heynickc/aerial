@@ -22,13 +22,13 @@ $("document").ready(function() {
 
 	// 2006 aerial photo tiles
 	var metro06URL = 'http://gis.wicomicocounty.org/metro2006/{z}/{x}/{y}.png';
-	var metro06 = new L.TileLayer(metro06URL, {maxZoom: 19, scheme: 'tms', opacity: .5});
+	var metro06 = new L.TileLayer(metro06URL, {maxZoom: 19, scheme: 'tms', opacity: 1});
 	// 2008 aerial photo tiles
 	var metro08URL = 'http://gis.wicomicocounty.org/metro2008/{z}/{x}/{y}.png';
-	var metro08 = new L.TileLayer(metro08URL, {maxZoom: 19, attribution: mapboxAttrib, scheme: 'tms', opacity: .5});
+	var metro08 = new L.TileLayer(metro08URL, {maxZoom: 19, attribution: mapboxAttrib, scheme: 'tms', opacity: 0});
 	// 2010 aerial photo tiles
 	var metro10URL = 'http://gis.wicomicocounty.org/metro2010/{z}/{x}/{y}.png';
-	var metro10 = new L.TileLayer(metro10URL, {maxZoom: 19, attribution: mapboxAttrib, scheme: 'tms'});
+	var metro10 = new L.TileLayer(metro10URL, {maxZoom: 19, attribution: mapboxAttrib, scheme: 'tms', opacity: 0});
 
 	// CartoDB building footprint tiles
 	var	bldgTileURL = 'http://nickchamberlain.cartodb.com/tiles/buildings/{z}/{x}/{y}.png';
@@ -42,35 +42,40 @@ $("document").ready(function() {
 	var aerialGroup = new L.LayerGroup();
 
 	// Create map
-	var	salisbury = new L.LatLng(38.3660, -75.6035);
+	var	salisbury = new L.LatLng(38.365, -75.591);
 	var map = new L.Map('map');
-	map.addLayer(mapboxSt);
-	aerialGroup.addLayer(metro06);
+	// map.addLayer(mapboxSt);
+	aerialGroup.addLayer(metro06).addLayer(metro08).addLayer(metro10);
 	map.addLayer(aerialGroup);
 
 	map.setView(salisbury, 14);
 	
 	// Refresh map
 	function refreshMap () {
-		map.setView(salisbury, 13)
+		map.setView(salisbury, 14)
 		markerGroup.clearLayers();
 	}//resets map zoom and center, clears all markers
 	refreshMap();
 
 	$("#slider").slider({
 		min: 0, 
-		max: 100, 
-		// value: 50,
+		max: 200, 
+		step: 1,
 		start: function( event, ui) {
 			// aerialGroup.clearLayers();
 		},
 		slide: function( event, ui ) {
 				$( "#buffAmt" ).val(ui.value);
-				metro06.setOpacity(ui.value / 100);
-				// metro08.setOpacity((10 - ui.value) / 10);
-				console.log(metro06.options.opacity, metro08.options.opacity);
-				// aerialGroup.addLayer(metro06);
-				// map.addLayer(aerialGroup);
+				if (ui.value < 100) {
+					metro06.setOpacity((100 - ui.value) / 100);
+					metro08.setOpacity(ui.value / 100);
+				
+				} if (ui.value > 100) {
+					metro08.setOpacity((100 - Math.abs(100 - ui.value)) / 100);
+					metro10.setOpacity(((ui.value / 100) - 1));
+				} 
+
+				console.log(metro06.options.opacity, metro08.options.opacity,metro10.options.opacity.toFixed(2));
 			}
 		});
 		$( "#buffAmt" ).val($( "#slider" ).slider( "value" ));
@@ -92,7 +97,7 @@ $("form").submit(function(event) {
 				var locMarker = new L.Marker(loc, {draggable: true});
 					markerGroup.addLayer(locMarker);
 					map.addLayer(markerGroup);
-					map.setView(loc,16);;
+					map.setView(loc,18);;
 				// listeners for .distance range input and dragging the marker 
 
 				//REMOVED FOR THIS PROJECT
