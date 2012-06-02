@@ -1972,7 +1972,7 @@ html {
   height: 100%;
 }
 html {
-  overflow: auto;
+  overflow: hidden;
   position: relative;
 }
 body {
@@ -1980,9 +1980,6 @@ body {
   position: relative;
 }
 .header {
-  height: 40px;
-  /*8.33333333%*/
-
   background: #41434a;
   position: relative;
   top: 0;
@@ -1993,6 +1990,9 @@ body {
   padding: 6px;
   margin: 0;
   font-weight: bold;
+}
+.header h2:hover {
+  background: #41434a;
 }
 /* Map Div */
 .wrapper {
