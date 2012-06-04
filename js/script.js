@@ -47,7 +47,6 @@ $("document").ready(function() {
 	// map.addLayer(mapboxSt);
 	aerialGroup.addLayer(metro06).addLayer(metro08).addLayer(metro10);
 	map.addLayer(aerialGroup);
-
 	map.setView(salisbury, 14);
 	
 	// Refresh map
@@ -61,21 +60,20 @@ $("document").ready(function() {
 		min: 0, 
 		max: 200, 
 		step: 1,
-		start: function( event, ui) {
-			// aerialGroup.clearLayers();
-		},
 		slide: function( event, ui ) {
 				$( "#buffAmt" ).val(ui.value);
 				if (ui.value < 100) {
 					metro06.setOpacity((100 - ui.value) / 100);
 					metro08.setOpacity(ui.value / 100);
-				
-				} if (ui.value > 100) {
-					metro08.setOpacity((100 - Math.abs(100 - ui.value)) / 100);
-					metro10.setOpacity(((ui.value / 100) - 1));
 				} 
 
-				console.log(metro06.options.opacity, metro08.options.opacity,metro10.options.opacity.toFixed(2));
+				if (ui.value > 100) {
+					metro08.setOpacity((100 - Math.abs(100 - ui.value)) / 100);
+					metro10.setOpacity(((ui.value / 100) - 1));
+				}
+				// aerialGroup.addLayer(metro06).addLayer(metro08).addLayer(metro10);
+				// map.addLayer(aerialGroup);				
+				// console.log(metro06.options.opacity," ", metro08.options.opacity," ",metro10.options.opacity.toFixed(2));
 			}
 		});
 		$( "#buffAmt" ).val($( "#slider" ).slider( "value" ));

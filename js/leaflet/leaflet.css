@@ -70,6 +70,8 @@
 
 .leaflet-tile {
 	visibility: hidden;
+/*	filter: inherit;*/
+/*	opacity: inherit;*/
 	}
 .leaflet-tile-loaded {
 	visibility: inherit;
