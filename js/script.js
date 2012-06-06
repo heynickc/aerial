@@ -43,7 +43,7 @@ $("document").ready(function() {
 
 	// Create map
 	var	salisbury = new L.LatLng(38.365, -75.591);
-	var map = new L.Map('map');
+	var map = new L.Map('map', {unloadInvisibleTiles: true});
 	// map.addLayer(mapboxSt);
 	aerialGroup.addLayer(metro06).addLayer(metro08).addLayer(metro10);
 	map.addLayer(aerialGroup);
@@ -58,22 +58,22 @@ $("document").ready(function() {
 
 	$("#slider").slider({
 		min: 0, 
-		max: 200, 
+		max: 20, 
 		step: 1,
 		slide: function( event, ui ) {
 				$( "#buffAmt" ).val(ui.value);
-				if (ui.value < 100) {
-					metro06.setOpacity((100 - ui.value) / 100);
-					metro08.setOpacity(ui.value / 100);
+				if (ui.value < 10) {
+					metro06.setOpacity((10 - ui.value) / 10);
+					metro08.setOpacity(ui.value / 10);
 				} 
 
-				if (ui.value > 100) {
-					metro08.setOpacity((100 - Math.abs(100 - ui.value)) / 100);
-					metro10.setOpacity(((ui.value / 100) - 1));
+				if (ui.value > 10) {
+					metro08.setOpacity((10 - Math.abs(10 - ui.value)) / 10);
+					metro10.setOpacity(((ui.value / 10) - 1));
 				}
 				// aerialGroup.addLayer(metro06).addLayer(metro08).addLayer(metro10);
 				// map.addLayer(aerialGroup);				
-				// console.log(metro06.options.opacity," ", metro08.options.opacity," ",metro10.options.opacity.toFixed(2));
+				console.log(metro06.options.opacity," ", metro08.options.opacity," ",metro10.options.opacity.toFixed(2));
 			}
 		});
 		$( "#buffAmt" ).val($( "#slider" ).slider( "value" ));
