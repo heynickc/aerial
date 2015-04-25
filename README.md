@@ -1,7 +1,5 @@
-My CartoDB Web Map Page
-=======================
+A simple responsive aerial photo viewer
 
-A Work In Progress
-------------------
+Slider bar slides through time to show older to newer photos
 
-This is just a prototype using responsive CSS to display a basemap and data stored in CartoDB with a Geocoding service. Testing
+![Alt text](/img/aerial.jpg?raw=true "Screenshot")
